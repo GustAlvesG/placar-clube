@@ -16,15 +16,15 @@ if (!fs.existsSync(videoDir)) {
     fs.mkdirSync(videoDir, { recursive: true });
 }
 
-// let gameState = {
-//     esporte: 'futsal',
-//     sacando: null,
-//     timeA: { nome: 'Time Local', logo: '', placar: 0, sets: 0, elenco: [] },
-//     timeB: { nome: 'Visitante', logo: '', placar: 0, sets: 0, elenco: [] },
-//     cronometro: { rodando: false, tempoAcumulado: 0, inicioTimestamp: 0, duracaoConfigurada: 600000 }
-// };
+let gameState = {
+    esporte: 'futsal',
+    sacando: null,
+    timeA: { nome: 'Time Local', logo: '', placar: 0, sets: 0, elenco: [] },
+    timeB: { nome: 'Visitante', logo: '', placar: 0, sets: 0, elenco: [] },
+    cronometro: { rodando: false, tempoAcumulado: 0, inicioTimestamp: 0, duracaoConfigurada: 600000 }
+};
 
-// io.on('connection', (socket) => {
+io.on('connection', (socket) => {
 //     console.log('🟢 Dispositivo conectado:', socket.id);
 //     socket.emit('atualizar_tela', { ...gameState, serverTime: Date.now() });
 
@@ -43,16 +43,17 @@ if (!fs.existsSync(videoDir)) {
 //     });
 
 //     // Configuração Inicial e Atualização de Dados
-//     socket.on('configurar_jogo', (dados) => {
-//         if (dados.esporte) gameState.esporte = dados.esporte;
-//         if (dados.timeA_nome) gameState.timeA.nome = dados.timeA_nome;
-//         if (dados.timeB_nome) gameState.timeB.nome = dados.timeB_nome;
-//         if (dados.timeA_logo !== undefined) gameState.timeA.logo = dados.timeA_logo;
-//         if (dados.timeB_logo !== undefined) gameState.timeB.logo = dados.timeB_logo;
-//         if (dados.timeA_elenco) gameState.timeA.elenco = dados.timeA_elenco;
-//         if (dados.timeB_elenco) gameState.timeB.elenco = dados.timeB_elenco;
-//         io.emit('atualizar_tela', { ...gameState, serverTime: Date.now() });
-//     });
+    socket.on('configurar_jogo', (dados) => {
+        console.log("CONFIGURANDO")
+        if (dados.esporte) gameState.esporte = dados.esporte;
+        if (dados.timeA_nome) gameState.timeA.nome = dados.timeA_nome;
+        if (dados.timeB_nome) gameState.timeB.nome = dados.timeB_nome;
+        if (dados.timeA_logo !== undefined) gameState.timeA.logo = dados.timeA_logo;
+        if (dados.timeB_logo !== undefined) gameState.timeB.logo = dados.timeB_logo;
+        if (dados.timeA_elenco) gameState.timeA.elenco = dados.timeA_elenco;
+        if (dados.timeB_elenco) gameState.timeB.elenco = dados.timeB_elenco;
+        io.emit('atualizar_tela', { ...gameState, serverTime: Date.now() });
+    });
 
 //     // Ações de Placar e Anúncio de Jogador
 //     socket.on('comando_placar', ({ time, acao, valor, jogador }) => {
@@ -96,7 +97,7 @@ if (!fs.existsSync(videoDir)) {
 //         }
 //         io.emit('atualizar_tela', { ...gameState, serverTime: Date.now() });
 //     });
-// });
+});
 
 server.listen(3000, '0.0.0.0', () => {
     console.log('Servidor rodando! Acesse via IP na rede (ex: http://192.168.x.x:3000)');

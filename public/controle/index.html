@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Configuração - Placar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans pb-10">
+
+    <!-- Navegação otimizada para toque -->
+    <nav class="bg-gray-900 text-white p-4 shadow-lg mb-8 flex flex-wrap justify-center gap-2 md:gap-6 font-bold text-sm md:text-base">
+        <a href="config.html" class="bg-gray-800 text-yellow-400 px-4 py-3 rounded-lg border-b-4 border-yellow-400">⚙️ CONFIGURAÇÃO</a>
+        <a href="#" class="px-4 py-3 rounded-lg hover:bg-gray-800 hover:text-yellow-400 transition">▶️ JOGO</a>
+        <!-- <a href="controle_futsal.html" class="px-4 py-3 rounded-lg hover:bg-gray-800 hover:text-yellow-400 transition">⚽ Futsal</a> -->
+        <!-- <a href="controle_volei.html" class="px-4 py-3 rounded-lg hover:bg-gray-800 hover:text-yellow-400 transition">🏐 VÔLEI</a> -->
+        <a href="controle_anuncios.html" class="px-4 py-3 rounded-lg hover:bg-gray-800 hover:text-yellow-400 transition">📺 ANÚNCIOS</a>
+    </nav>
+
+    <div class="w-full md:max-w-5xl mx-auto px-4 space-y-8">
+        
+        <!-- Regras do Jogo -->
+        <div class="bg-white p-6 md:p-8 rounded-2xl shadow-md border-t-4 border-gray-800">
+            <h2 class="text-2xl font-black text-gray-800 mb-6">Regras do Jogo</h2>
+            <div class="grid grid-cols-1 md:grid-cols-1 gap-8">
+                
+                <!-- Seleção de Esporte com Botões Grandes -->
+                <div class="here flex justify-center items-center">
+                    <!-- <label class="block text-sm text-gray-600 font-bold mb-3 uppercase tracking-wide">Qual esporte vai para o telão?</label> -->
+                    <div class="grid grid-cols-3 gap-3">
+                        <label class="cursor-pointer w-full">
+                            <input type="radio" name="esporte" value="basquete" class="peer sr-only" onchange="atualizarConfig()">
+                            <div class="rounded-xl border-2 border-gray-200 py-6 px-4 min-h-[140px] flex flex-col items-center justify-center text-center font-bold text-gray-500 hover:bg-gray-50 hover:scale-105 active:scale-95 peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-700 transition-all duration-200">
+                                <div class="text-2xl mb-1">🏀</div>
+                                <div class="text-sm md:text-base">Basquete</div>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer w-full">
+                            <input type="radio" name="esporte" value="futsal" class="peer sr-only" onchange="atualizarConfig()">
+                            <div class="rounded-xl border-2 border-gray-200 py-6 px-4 min-h-[140px] flex flex-col items-center justify-center text-center font-bold text-gray-500 hover:bg-gray-50 hover:scale-105 active:scale-95 peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-700 transition-all duration-200">
+                                <div class="text-2xl mb-1">⚽</div>
+                                <div class="text-sm md:text-base">Futsal</div>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer w-full">
+                            <input type="radio" name="esporte" value="volei" class="peer sr-only" onchange="atualizarConfig()">
+                            <div class="rounded-xl border-2 border-gray-200 py-6 px-4 min-h-[140px] flex flex-col items-center justify-center text-center font-bold text-gray-500 hover:bg-gray-50 hover:scale-105 active:scale-95 peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-700 transition-all duration-200">
+                                <div class="text-2xl mb-1">🏐</div>
+                                <div class="text-sm md:text-base">Vôlei</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                
+            </div>
+        </div>
+
+        <!-- Times -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+            
+            <!-- TIME A -->
+            <div class="bg-blue-50 p-6 md:p-8 rounded-2xl border-2 border-blue-200 shadow-sm">
+                <h3 class="font-black text-blue-800 text-2xl mb-6 flex items-center gap-2">🏠 TIME A (Local)</h3>
+                
+                <input type="text" id="nome_a" placeholder="Nome da Equipe" class="w-full border-2 border-white p-4 rounded-xl mb-5 font-black text-xl text-gray-800 shadow-sm focus:border-blue-400 outline-none" onchange="atualizarConfig()">
+                
+                <label class="block text-sm text-gray-600 mb-2 font-bold uppercase">Logo (Opcional):</label>
+                <input type="file" accept="image/*" class="w-full text-base mb-6 bg-white p-3 border-2 border-dashed border-blue-300 rounded-xl cursor-pointer" onchange="enviarLogo('timeA', this)">
+                
+                <!-- <label class="block text-sm text-gray-600 mb-2 font-bold uppercase">Elenco (Separe por vírgula):</label>
+                <textarea id="elenco_a" rows="5" class="w-full border border-blue-200 p-4 rounded-xl text-base text-gray-700 shadow-inner focus:border-blue-400 outline-none leading-relaxed" placeholder="Ex: 10 - João, 9 - Pedro" onchange="atualizarConfig()"></textarea> -->
+            </div>
+            
+            <!-- TIME B -->
+            <div class="bg-red-50 p-6 md:p-8 rounded-2xl border-2 border-red-200 shadow-sm">
+                <h3 class="font-black text-red-800 text-2xl mb-6 flex items-center gap-2">✈️ TIME B (Visitante)</h3>
+                
+                <input type="text" id="nome_b" placeholder="Nome da Equipe" class="w-full border-2 border-white p-4 rounded-xl mb-5 font-black text-xl text-gray-800 shadow-sm focus:border-red-400 outline-none" onchange="atualizarConfig()">
+                
+                <label class="block text-sm text-gray-600 mb-2 font-bold uppercase">Logo (Opcional):</label>
+                <input type="file" accept="image/*" class="w-full text-base mb-6 bg-white p-3 border-2 border-dashed border-red-300 rounded-xl cursor-pointer" onchange="enviarLogo('timeB', this)">
+                
+                <!-- <label class="block text-sm text-gray-600 mb-2 font-bold uppercase">Elenco (Separe por vírgula):</label>
+                <textarea id="elenco_b" rows="5" class="w-full border border-red-200 p-4 rounded-xl text-base text-gray-700 shadow-inner focus:border-red-400 outline-none leading-relaxed" placeholder="Ex: 1 - Dida, 5 - Casemiro" onchange="atualizarConfig()"></textarea> -->
+            </div>
+
+        </div>
+        
+        <!-- Ações Perigosas -->
+        <div class="text-center mt-10 pb-8">
+            <button id="salvar" onclick="salvarConfig('nenhum', 'zerar_tudo', 0)" class="w-full md:w-auto bg-green-600 text-white px-12 py-5 rounded-2xl font-black text-xl hover:bg-green-700 active:bg-green-800 transition shadow-xl border-b-4 border-green-800 active:border-b-0 active:translate-y-1">
+                ✅ SALVAR CONFIGURAÇÃO
+            </button>
+        </div>
+
+        <div class="text-center mt-10 pb-8">
+            <button id="zerar" onclick="cmdPlacar('nenhum', 'zerar_tudo', 0)" class="w-full md:w-auto bg-red-600 text-white px-12 py-5 rounded-2xl font-black text-xl hover:bg-red-700 active:bg-red-800 transition shadow-xl border-b-4 border-red-800 active:border-b-0 active:translate-y-1">
+                ⚠️ ZERAR PLACAR E DADOS
+            </button>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        function atualizarConfig() {
+            console.log("Configurando Controle Side")
+            // Nova lógica para pegar o valor do esporte selecionado nos botões rádio
+            const esporteSelecionado = document.querySelector('input[name="esporte"]:checked').value;
+            // const elencoA = document.getElementById('elenco_a').value.split(',').map(n => n.trim()).filter(n => n);
+            // const elencoB = document.getElementById('elenco_b').value.split(',').map(n => n.trim()).filter(n => n);
+            
+            socket.emit('configurar_jogo', {
+                esporte: esporteSelecionado,
+                timeA_nome: document.getElementById('nome_a').value,
+                timeB_nome: document.getElementById('nome_b').value,
+                // timeA_elenco: elencoA,
+                // timeB_elenco: elencoB
+            });
+        }
+
+        function salvarConfig(){
+            // Select all form controls
+            const elements = document.querySelectorAll(
+                'input, textarea, select, button'
+            );
+
+            // Disable each one
+            elements.forEach(el => {
+                el.disabled = true;
+            });
+
+            document.getElementById('zerar').disabled = false
+        }
+        
+        function enviarLogo(time, input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onloadend = () => { let p = {}; p[time + '_logo'] = reader.result; socket.emit('configurar_jogo', p); };
+            reader.readAsDataURL(file);
+        }
+        
+        function setTempo() { 
+            socket.emit('comando_cronometro', { acao: 'set', valor: parseInt(document.getElementById('minutos_set').value) }); 
+        }
+        
+        function cmdPlacar(t, a, v) { 
+            console.log("aaaa");
+            socket.emit('comando_placar', { time: t, acao: a, valor: v }); 
+
+            // Select all form controls
+            const elements = document.querySelectorAll(
+                'input, textarea, select, button'
+            );
+
+            // Disable each one
+            elements.forEach(el => {
+                el.disabled = false;
+            });
+        
+        }
+    </script>
+</body>
+</html>

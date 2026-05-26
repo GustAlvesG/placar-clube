@@ -37,7 +37,7 @@ body {
     position: absolute;
     inset: 0;
 
-    background-image: url('./base/box.png');
+    background-image: url('./base/futsal/box.png');
     background-size: cover;
     background-position: center;
 
@@ -74,13 +74,16 @@ body {
     width: 50%;
     aspect-ratio: 1 / 1;
 
-    top: 70%;
-    left: 10%;
+    top: 30%;
+    left: -15%;
 
     background-image: url('./base/volei/element-2.png');
 
-    animation: flutuar-2 6s ease-in-out infinite;
+    animation: flutuar-2 6s ease-in-out, spin 90s linear infinite;
+
 }
+
+
 
 /* =========================
    ANIMAÇÕES
@@ -184,11 +187,25 @@ body {
     }
 }
 
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* Conteúdo do placar acima dos elementos */
 .logo,
 .tempo,
 .nome,
 .pontos,
+.quarter,
+.faltas-mandante,
+.faltas-visitante,
+.periodo,
+.posse,
 .volei {
     position: absolute;
     z-index: 4;
@@ -204,6 +221,64 @@ body {
     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
 }
 
+.quarter{
+    position: absolute;
+    transform: translate(-50%, -50%);
+    color: #ffffff;
+    font-weight: bold;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
+    font-size: 4cqw; 
+
+    top: 30.3%;
+    left: 55.8%;
+}
+
+.posse{
+    position: absolute;
+    transform: translate(-50%, -50%);
+    color: #ffffff;
+    font-weight: bold;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
+    font-size: 4cqw; 
+
+    top: 30.3%;
+    left: 68.6%;
+}
+
+.faltas-mandante {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    color: #ffffff;
+    font-weight: bold;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
+    font-size: 4cqw; 
+
+    top: 28.2%;
+    left: 18.4%
+}
+.faltas-visitante {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    color: #ffffff;
+    font-weight: bold;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
+    font-size: 4cqw; 
+
+    top: 28.2%;
+    left: 81.6%
+}
+.periodo {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    color: #ffffff;
+    font-weight: bold;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
+    font-size: 4cqw; 
+
+    top: 28%;
+    left: 60%;
+}
+
 .tempo{
     position: absolute;
     transform: translate(-50%, -50%);
@@ -212,8 +287,24 @@ body {
     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
     font-size: 4cqw; 
 
-    top: 18.7%;
-    left: 49.7%;
+    /* 
+    FUTSAL 
+    */
+    /* top: 18.7%;
+    left: 49.7%; */
+
+    /* 
+    BASQUETE 
+    */
+    top: 28%;
+    left: 44%;
+
+    /* 
+    VOLEI 
+    */
+    /* top: 18.7%;
+    left: 49.7%; */
+
 }   
 
 /* ================= LOGOS ================= */
@@ -261,7 +352,7 @@ body {
 }
 
 .nome-mandante {
-    top: 67%;
+    top: 80%;
     left: 18.4%;
 }
 
@@ -284,14 +375,32 @@ body {
 }
 
 .pontos-mandante {
-    top: 45.5%;
+    /* FUTSAL */
+    /* top: 45.5%;
+    left: 40.5%; */
+
+    /* BASQUETE */
+    top: 56.5%;
     left: 40.5%;
+
+    /* VOLEI */
+    /* top: 45.5%;
+    left: 40.5%; */
 }
 
 
 .pontos-visitante {
-    top: 45.5%;
+    /* FUTSAL */
+    /* top: 45.5%;
+    left: 59.2%; */
+
+    /* BASQUETE */
+    top: 56.5%;
     left: 59.2%;
+
+    /* VOLEI */
+    /* top: 45.5%;
+    left: 59.2%; */
 }
 
 /* ================= SETS ================= */
