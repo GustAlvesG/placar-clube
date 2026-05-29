@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Operação - Basquete</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-orange-50 font-sans pb-10">
+
+    <!-- Navegação otimizada para toque -->
+    <nav class="bg-gray-900 text-white p-4 shadow-lg mb-8 flex flex-wrap justify-center gap-2 md:gap-6 font-bold text-sm md:text-base">
+        <a href="index.html" class="px-4 py-3 rounded-lg hover:bg-gray-800 hover:text-yellow-400 transition">⚙️ CONFIGURAÇÃO</a>
+        <a href="controle.html" class="bg-gray-800 text-yellow-400 px-4 py-3 rounded-lg border-b-4 border-yellow-400">▶️ JOGO</a>
+        <!-- <a href="controle_futsal.html" class="px-4 py-3 rounded-lg hover:bg-gray-800 hover:text-yellow-400 transition">⚽ Futsal</a> -->
+        <!-- <a href="controle_volei.html" class="px-4 py-3 rounded-lg hover:bg-gray-800 hover:text-yellow-400 transition">🏐 VÔLEI</a> -->
+        <a href="controle_anuncios.html" class="px-4 py-3 rounded-lg hover:bg-gray-800 hover:text-yellow-400 transition">📺 ANÚNCIOS</a>
+    </nav>
+
+    
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        // Puxa nomes e elencos do servidor automaticamente
+        socket.on('atualizar_tela', (dados) => {
+            document.getElementById('display_nome_a').innerText = dados.timeA.nome;
+            document.getElementById('display_nome_b').innerText = dados.timeB.nome;
+            
+            const atu = (id, elenco) => {
+                const select = document.getElementById(id);
+                const val = select.value;
+                select.innerHTML = '<option value="">Quem marcou? (Opcional)</option>';
+                if(elenco) elenco.forEach(j => select.innerHTML += `<option value="${j}">${j}</option>`);
+                select.value = val;
+            };
+            atu('select_jogador_a', dados.timeA.elenco);
+            atu('select_jogador_b', dados.timeB.elenco);
+        });
+
+        function marcar(time, valor) {
+            let jogador = document.getElementById(time === 'timeA' ? 'select_jogador_a' : 'select_jogador_b').value;
+            document.getElementById(time === 'timeA' ? 'select_jogador_a' : 'select_jogador_b').value = "";
+            socket.emit('comando_placar', { time, acao: 'add_ponto', valor, jogador });
+        }
+        function cmdPlacar(t, a, v) { socket.emit('comando_placar', { time: t, acao: a, valor: v }); }
+        function cmdCronometro(a) { 
+            console.log(a);
+            socket.emit('comando_cronometro', { acao: a }); 
+        }
+    </script>
+</body>
+</html>

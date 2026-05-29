@@ -37,7 +37,7 @@ body {
     position: absolute;
     inset: 0;
 
-    background-image: url('./base/futsal/box.png');
+    background-image: url('./base/volei/box.png');
     background-size: cover;
     background-position: center;
 
@@ -46,7 +46,9 @@ body {
 
 /* ELEMENTOS entre fundo e box */
 .element-1,
-.element-2 {
+.element-2,
+.element-3,
+.element-4 {
     position: absolute;
 
     background-size: contain;
@@ -82,6 +84,36 @@ body {
     animation: flutuar-2 6s ease-in-out, spin 90s linear infinite;
 
 }
+
+.element-3 {
+    transform: translate(-50%, -50%);
+    width: 5%;
+    aspect-ratio: 1 / 1;
+
+    top: 46%;
+    left: 7%;
+
+    background-image: url('./base/volei/element-3.png');
+
+    /* animation: flutuar-2 6s ease-in-out, spin 90s linear infinite; */
+
+}
+
+
+.element-4 {
+    transform: translate(-50%, -50%);
+    width: 5%;
+    aspect-ratio: 1 / 1;
+
+    top: 46.5%;
+    left: 7%;
+
+    background-image: url('./base/volei/element-4-on.png');
+
+    /* animation: flutuar-2 6s ease-in-out, spin 90s linear infinite; */
+
+}
+
 
 
 
@@ -264,6 +296,8 @@ body {
     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
     font-size: 4cqw; 
 
+    
+
     top: 28.2%;
     left: 81.6%
 }
@@ -296,14 +330,14 @@ body {
     /* 
     BASQUETE 
     */
-    top: 28%;
-    left: 44%;
+    /* top: 28%;
+    left: 44%; */
 
     /* 
     VOLEI 
     */
-    /* top: 18.7%;
-    left: 49.7%; */
+    top: 18.7%;
+    left: 49.7%;
 
 }   
 
@@ -352,7 +386,7 @@ body {
 }
 
 .nome-mandante {
-    top: 80%;
+    top: 67%;
     left: 18.4%;
 }
 
@@ -380,12 +414,12 @@ body {
     left: 40.5%; */
 
     /* BASQUETE */
-    top: 56.5%;
-    left: 40.5%;
+    /* top: 56.5%;
+    left: 40.5%; */
 
     /* VOLEI */
-    /* top: 45.5%;
-    left: 40.5%; */
+    top: 45.5%;
+    left: 40.5%;
 }
 
 
@@ -395,12 +429,12 @@ body {
     left: 59.2%; */
 
     /* BASQUETE */
-    top: 56.5%;
-    left: 59.2%;
+    /* top: 56.5%;
+    left: 59.2%; */
 
     /* VOLEI */
-    /* top: 45.5%;
-    left: 59.2%; */
+    top: 45.5%;
+    left: 59.2%;
 }
 
 /* ================= SETS ================= */

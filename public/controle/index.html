@@ -107,20 +107,19 @@
         function atualizarConfig() {
             console.log("Configurando Controle Side")
             // Nova lógica para pegar o valor do esporte selecionado nos botões rádio
-            const esporteSelecionado = document.querySelector('input[name="esporte"]:checked').value;
-            // const elencoA = document.getElementById('elenco_a').value.split(',').map(n => n.trim()).filter(n => n);
-            // const elencoB = document.getElementById('elenco_b').value.split(',').map(n => n.trim()).filter(n => n);
             
-            socket.emit('configurar_jogo', {
-                esporte: esporteSelecionado,
-                timeA_nome: document.getElementById('nome_a').value,
-                timeB_nome: document.getElementById('nome_b').value,
-                // timeA_elenco: elencoA,
-                // timeB_elenco: elencoB
-            });
         }
 
         function salvarConfig(){
+            const esporteSelecionado = document.querySelector('input[name="esporte"]:checked');
+            const nomeA = document.getElementById('nome_a').value.trim();
+            const nomeB = document.getElementById('nome_b').value.trim();
+
+            if (!esporteSelecionado || !nomeA || !nomeB) {
+                alert("Por favor, preencha todos os campos obrigatórios.");
+                return;
+            }
+
             // Select all form controls
             const elements = document.querySelectorAll(
                 'input, textarea, select, button'
@@ -131,7 +130,18 @@
                 el.disabled = true;
             });
 
-            document.getElementById('zerar').disabled = false
+            // const elencoA = document.getElementById('elenco_a').value.split(',').map(n => n.trim()).filter(n => n);
+            // const elencoB = document.getElementById('elenco_b').value.split(',').map(n => n.trim()).filter(n => n);
+            
+            socket.emit('configurar_jogo', {
+                esporte: esporteSelecionado.value,
+                timeA_nome: document.getElementById('nome_a').value,
+                timeB_nome: document.getElementById('nome_b').value,
+                // timeA_elenco: elencoA,
+                // timeB_elenco: elencoB
+            });
+
+            document.getElementById('zerar').disabled = false;
         }
         
         function enviarLogo(time, input) {
@@ -157,6 +167,7 @@
 
             // Disable each one
             elements.forEach(el => {
+                el.innerHTML = "";
                 el.disabled = false;
             });
         

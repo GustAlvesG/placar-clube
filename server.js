@@ -52,6 +52,8 @@ io.on('connection', (socket) => {
         if (dados.timeB_logo !== undefined) gameState.timeB.logo = dados.timeB_logo;
         if (dados.timeA_elenco) gameState.timeA.elenco = dados.timeA_elenco;
         if (dados.timeB_elenco) gameState.timeB.elenco = dados.timeB_elenco;
+        console.log("gameState.timeA.logo");
+        console.log(gameState.timeA.logo);
         io.emit('atualizar_tela', { ...gameState, serverTime: Date.now() });
     });
 

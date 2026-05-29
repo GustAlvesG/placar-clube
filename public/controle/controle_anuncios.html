@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Operação - Anúncios</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-purple-50 font-sans pb-10">
+
+    <!-- Navegação otimizada para toque -->
+    <nav class="bg-gray-900 text-white p-4 shadow-lg mb-8 flex flex-wrap justify-center gap-2 md:gap-6 font-bold text-sm md:text-base">
+        <a href="index.html" class="px-4 py-3 rounded-lg hover:bg-gray-800 hover:text-yellow-400 transition">⚙️ CONFIGURAÇÃO</a>
+        <a href="controle.html" class="bg-gray-800 text-yellow-400 px-4 py-3 rounded-lg border-b-4 border-yellow-400">▶️ JOGO</a>
+        <!-- <a href="controle_futsal.html" class="px-4 py-3 rounded-lg hover:bg-gray-800 hover:text-yellow-400 transition">⚽ Futsal</a> -->
+        <!-- <a href="controle_volei.html" class="px-4 py-3 rounded-lg hover:bg-gray-800 hover:text-yellow-400 transition">🏐 VÔLEI</a> -->
+        <a href="controle_anuncios.html" class="px-4 py-3 rounded-lg hover:bg-gray-800 hover:text-yellow-400 transition">📺 ANÚNCIOS</a>
+    </nav>
+
+    <div class="max-w-3xl mx-auto bg-white p-10 rounded-2xl shadow-xl text-center border-t-8 border-purple-800">
+        <h2 class="text-3xl font-black text-gray-800 mb-2">Central de Transmissão</h2>
+        <p class="text-gray-500 mb-8">Execute vídeos em tela cheia sobrepondo o placar.</p>
+
+        <div class="mb-8">
+            <label class="block text-left font-bold text-gray-700 mb-2">Selecione o arquivo de mídia:</label>
+            <div class="flex gap-4">
+                <select id="select_video" class="flex-1 border-2 border-purple-300 p-4 rounded-xl text-lg font-bold bg-purple-50 focus:outline-none focus:border-purple-600">
+                    <option value="">Carregando...</option>
+                </select>
+                <button onclick="carregarListaVideos()" class="bg-gray-200 px-6 rounded-xl font-bold hover:bg-gray-300 transition">🔄 Recarregar</button>
+            </div>
+        </div>
+
+        <div class="flex gap-6 justify-center">
+            <button onclick="tocarVideo()" class="bg-purple-600 text-white px-12 py-5 rounded-xl font-black text-2xl shadow-lg hover:bg-purple-700 transition transform hover:scale-105">
+                ▶ DISPARAR VÍDEO
+            </button>
+            <button onclick="pararVideo()" class="bg-red-600 text-white px-12 py-5 rounded-xl font-black text-2xl shadow-lg hover:bg-red-700 transition">
+                ⏹ CORTAR IMAGEM
+            </button>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        function carregarListaVideos() { socket.emit('solicitar_videos'); }
+        socket.on('lista_videos', (videos) => {
+            const s = document.getElementById('select_video');
+            s.innerHTML = videos.length === 0 ? '<option value="">Nenhuma mídia encontrada na pasta public/videos</option>' : '';
+            videos.forEach(v => s.innerHTML += `<option value="${v}">${v}</option>`);
+        });
+        carregarListaVideos();
+        function tocarVideo() { const v = document.getElementById('select_video').value; if(v) socket.emit('comando_video', { acao: 'play', arquivo: v }); }
+        function pararVideo() { socket.emit('comando_video', { acao: 'stop' }); }
+    </script>
+</body>
+</html>
