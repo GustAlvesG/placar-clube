@@ -87,14 +87,24 @@
 
         </div>
         
-        <!-- Ações Perigosas -->
-        <div class="text-center mt-10 pb-8">
-            <button id="salvar" onclick="salvarConfig('nenhum', 'zerar_tudo', 0)" class="w-full md:w-auto bg-green-600 text-white px-12 py-5 rounded-2xl font-black text-xl hover:bg-green-700 active:bg-green-800 transition shadow-xl border-b-4 border-green-800 active:border-b-0 active:translate-y-1">
+        <!-- Ações -->
+        <div class="text-center mt-10">
+            <button id="salvar" onclick="salvarConfig()" class="w-full md:w-auto bg-green-600 text-white px-12 py-5 rounded-2xl font-black text-xl hover:bg-green-700 active:bg-green-800 transition shadow-xl border-b-4 border-green-800 active:border-b-0 active:translate-y-1">
                 ✅ SALVAR CONFIGURAÇÃO
             </button>
         </div>
 
-        <div class="text-center mt-10 pb-8">
+        <!-- Transmissão -->
+        <div class="bg-white p-6 md:p-8 rounded-2xl shadow-md border-t-4 border-gray-800 text-center mt-8">
+            <h2 class="text-xl font-black text-gray-700 mb-2">Transmissão do Telão</h2>
+            <p id="status-transmissao" class="text-gray-400 text-sm mb-5">Status: <span id="texto-status" class="font-bold text-red-500">Desligada</span></p>
+            <button id="btn-transmissao" onclick="toggleTransmissao()"
+                class="w-full md:w-auto bg-green-600 text-white px-12 py-5 rounded-2xl font-black text-xl hover:bg-green-700 active:bg-green-800 transition shadow-xl border-b-4 border-green-800 active:border-b-0 active:translate-y-1">
+                📡 INICIAR TRANSMISSÃO
+            </button>
+        </div>
+
+        <div class="text-center mt-6 pb-8">
             <button id="zerar" onclick="zerarTudo()" class="w-full md:w-auto bg-red-600 text-white px-12 py-5 rounded-2xl font-black text-xl hover:bg-red-700 active:bg-red-800 transition shadow-xl border-b-4 border-red-800 active:border-b-0 active:translate-y-1">
                 ⚠️ ZERAR PLACAR E DADOS
             </button>
@@ -105,14 +115,33 @@
     <script>
         const socket = io();
         const mapaControle = { futsal: 'controle_futsal.html', basquete: 'controle_basquete.html', volei: 'controle_volei.html' };
+        let transmissaoAtiva = false;
 
         socket.on('atualizar_tela', (dados) => {
             const link = document.getElementById('link-jogo');
             if (mapaControle[dados.esporte]) link.href = mapaControle[dados.esporte];
-            // Marca o radio do esporte atual
             const radio = document.querySelector(`input[name="esporte"][value="${dados.esporte}"]`);
             if (radio) radio.checked = true;
+
+            transmissaoAtiva = !!dados.transmissaoAtiva;
+            const btn = document.getElementById('btn-transmissao');
+            const textoStatus = document.getElementById('texto-status');
+            if (transmissaoAtiva) {
+                btn.textContent = '📴 ENCERRAR TRANSMISSÃO';
+                btn.className = btn.className.replace('bg-green-600', 'bg-gray-700').replace('hover:bg-green-700', 'hover:bg-gray-600').replace('active:bg-green-800', 'active:bg-gray-800').replace('border-green-800', 'border-gray-900');
+                textoStatus.textContent = 'Ativa';
+                textoStatus.className = 'font-bold text-green-600';
+            } else {
+                btn.textContent = '📡 INICIAR TRANSMISSÃO';
+                btn.className = btn.className.replace('bg-gray-700', 'bg-green-600').replace('hover:bg-gray-600', 'hover:bg-green-700').replace('active:bg-gray-800', 'active:bg-green-800').replace('border-gray-900', 'border-green-800');
+                textoStatus.textContent = 'Desligada';
+                textoStatus.className = 'font-bold text-red-500';
+            }
         });
+
+        function toggleTransmissao() {
+            socket.emit('comando_transmissao', { ativa: !transmissaoAtiva });
+        }
 
         function atualizarConfig() {
             const esporteSelecionado = document.querySelector('input[name="esporte"]:checked');
@@ -154,6 +183,7 @@
             });
 
             document.getElementById('zerar').disabled = false;
+            document.getElementById('btn-transmissao').disabled = false;
         }
         
         function enviarLogo(time, input) {

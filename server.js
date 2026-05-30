@@ -19,6 +19,7 @@ let gameState = {
     esporte: 'futsal',
     sacando: null,
     periodo: 1,
+    transmissaoAtiva: false,
     timeA: { nome: 'Time Local', logo: '', placar: 0, sets: 0, faltas: 0, elenco: [] },
     timeB: { nome: 'Visitante', logo: '', placar: 0, sets: 0, faltas: 0, elenco: [] },
     cronometro: { rodando: false, tempoAcumulado: 0, inicioTimestamp: 0, duracaoConfigurada: 600000 }
@@ -49,6 +50,11 @@ io.on('connection', (socket) => {
 
     socket.on('comando_video', (dados) => {
         io.emit('executar_video', dados);
+    });
+
+    socket.on('comando_transmissao', (dados) => {
+        gameState.transmissaoAtiva = !!dados.ativa;
+        broadcast();
     });
 
     // Configuração Inicial e Atualização de Dados
@@ -101,6 +107,7 @@ io.on('connection', (socket) => {
             gameState.timeB.placar = 0; gameState.timeB.sets = 0; gameState.timeB.faltas = 0;
             gameState.sacando = null;
             gameState.periodo = 1;
+            gameState.transmissaoAtiva = false;
             gameState.cronometro.rodando = false;
             gameState.cronometro.tempoAcumulado = 0;
             gameState.cronometro.inicioTimestamp = 0;

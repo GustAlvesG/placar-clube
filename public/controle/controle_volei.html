@@ -113,6 +113,8 @@
                 const clockOffset = Date.now() - dados.serverTime;
                 dados.cronometro.inicioTimestamp += clockOffset;
             }
+            //Checar se existe um esporte, se nao, voltar para a tela de escolha
+
             estadoAtual = dados;
             document.getElementById('nome-a').innerText = dados.timeA.nome || 'TIME A';
             document.getElementById('nome-b').innerText = dados.timeB.nome || 'TIME B';
