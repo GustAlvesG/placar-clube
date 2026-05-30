@@ -9,6 +9,15 @@
 </head>
 <body>
 
+    <!-- Animação de ponto / falta -->
+    <div id="anim-overlay" style="display:none;position:fixed;inset:0;z-index:85;align-items:center;justify-content:center;pointer-events:none;">
+        <div id="anim-card" style="background:rgba(0,0,0,0.88);padding:2.5rem 3.5rem;border-radius:1.5rem;text-align:center;min-width:18rem;">
+            <div id="anim-time" style="color:#9ca3af;font-size:1.1rem;text-transform:uppercase;letter-spacing:0.15em;font-family:sans-serif;font-weight:700;margin-bottom:0.5rem;"></div>
+            <div id="anim-acao" style="color:#facc15;font-size:5rem;font-weight:900;font-family:sans-serif;line-height:1;"></div>
+            <div id="anim-jogador" style="color:#fff;font-size:2.2rem;font-weight:700;font-family:sans-serif;margin-top:0.75rem;"></div>
+        </div>
+    </div>
+
     <!-- Tela inicial / standby (visível até a transmissão ser iniciada) -->
     <div id="tela-inicial" style="position:fixed;inset:0;z-index:90;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;">
         <div id="icone-esporte" style="font-size:9rem;line-height:1;">⚽</div>
@@ -17,6 +26,13 @@
     </div>
     <style>
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+        @keyframes animPop {
+            0%   { opacity:0; transform:scale(0.75) }
+            12%  { opacity:1; transform:scale(1.05) }
+            20%  { transform:scale(1) }
+            80%  { opacity:1; transform:scale(1) }
+            100% { opacity:0; transform:scale(0.9) }
+        }
     </style>
 
     <!-- Player de vídeo para comerciais (sobrepõe tudo) -->
@@ -109,6 +125,21 @@
         });
 
         videoPlayer.addEventListener('ended', playNext);
+
+        // Animação de ponto / falta
+        socket.on('animacao_ponto', ({ texto, jogador, timeNome }) => {
+            document.getElementById('anim-time').innerText = timeNome || '';
+            document.getElementById('anim-acao').innerText = texto || '';
+            document.getElementById('anim-jogador').innerText = jogador || '';
+            const overlay = document.getElementById('anim-overlay');
+            const card = document.getElementById('anim-card');
+            overlay.style.display = 'flex';
+            card.style.animation = 'none';
+            card.offsetHeight;
+            card.style.animation = 'animPop 3s forwards';
+            clearTimeout(window._animTimer);
+            window._animTimer = setTimeout(() => { overlay.style.display = 'none'; }, 3000);
+        });
 
         // Cronômetro em tempo real (50ms para suavidade nos centissegundos do basquete)
         setInterval(() => {

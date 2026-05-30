@@ -98,7 +98,10 @@ io.on('connection', (socket) => {
         if (acao === 'sub_ponto' && gameState[time].placar > 0) gameState[time].placar -= valor;
         if (acao === 'add_set') gameState[time].sets += 1;
         if (acao === 'sub_set' && gameState[time].sets > 0) gameState[time].sets -= 1;
-        if (acao === 'add_falta') gameState[time].faltas += 1;
+        if (acao === 'add_falta') {
+            gameState[time].faltas += 1;
+            if (jogador) io.emit('animacao_ponto', { texto: 'FALTA!', jogador, timeNome: gameState[time].nome });
+        }
         if (acao === 'sub_falta' && gameState[time].faltas > 0) gameState[time].faltas -= 1;
         if (acao === 'add_periodo') gameState.periodo += 1;
         if (acao === 'sub_periodo' && gameState.periodo > 1) gameState.periodo -= 1;
