@@ -2,56 +2,141 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Operação - Anúncios</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Anúncios - Controle</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { user-select: none; }
+    </style>
 </head>
-<body class="bg-purple-50 font-sans pb-10">
+<body class="bg-gray-950 text-white flex flex-col h-screen overflow-hidden">
 
-    <!-- Navegação otimizada para toque -->
-    <nav class="bg-gray-900 text-white p-4 shadow-lg mb-8 flex flex-wrap justify-center gap-2 md:gap-6 font-bold text-sm md:text-base">
-        <a href="index.html" class="px-4 py-3 rounded-lg hover:bg-gray-800 hover:text-yellow-400 transition">⚙️ CONFIGURAÇÃO</a>
-        <a href="controle.html" class="bg-gray-800 text-yellow-400 px-4 py-3 rounded-lg border-b-4 border-yellow-400">▶️ JOGO</a>
-        <!-- <a href="controle_futsal.html" class="px-4 py-3 rounded-lg hover:bg-gray-800 hover:text-yellow-400 transition">⚽ Futsal</a> -->
-        <!-- <a href="controle_volei.html" class="px-4 py-3 rounded-lg hover:bg-gray-800 hover:text-yellow-400 transition">🏐 VÔLEI</a> -->
-        <a href="controle_anuncios.html" class="px-4 py-3 rounded-lg hover:bg-gray-800 hover:text-yellow-400 transition">📺 ANÚNCIOS</a>
+    <nav class="bg-gray-900 shrink-0 flex items-center gap-3 px-4 py-2 border-b border-gray-700 text-sm">
+        <a href="index.html" class="text-gray-400 hover:text-yellow-400 font-bold transition">⚙️ CONFIG</a>
+        <a id="link-jogo" href="controle.html" class="text-gray-400 hover:text-yellow-400 font-bold transition">▶️ JOGO</a>
+        <span class="text-purple-400 font-black tracking-wider">📺 ANÚNCIOS</span>
     </nav>
 
-    <div class="max-w-3xl mx-auto bg-white p-10 rounded-2xl shadow-xl text-center border-t-8 border-purple-800">
-        <h2 class="text-3xl font-black text-gray-800 mb-2">Central de Transmissão</h2>
-        <p class="text-gray-500 mb-8">Execute vídeos em tela cheia sobrepondo o placar.</p>
+    <!-- Área principal -->
+    <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
 
-        <div class="mb-8">
-            <label class="block text-left font-bold text-gray-700 mb-2">Selecione o arquivo de mídia:</label>
-            <div class="flex gap-4">
-                <select id="select_video" class="flex-1 border-2 border-purple-300 p-4 rounded-xl text-lg font-bold bg-purple-50 focus:outline-none focus:border-purple-600">
-                    <option value="">Carregando...</option>
-                </select>
-                <button onclick="carregarListaVideos()" class="bg-gray-200 px-6 rounded-xl font-bold hover:bg-gray-300 transition">🔄 Recarregar</button>
+        <!-- Coluna esquerda: vídeos disponíveis -->
+        <div class="flex-1 flex flex-col border-r border-gray-700 overflow-hidden">
+            <div class="flex items-center justify-between px-4 py-3 border-b border-gray-800 shrink-0">
+                <h2 class="font-black text-gray-300 uppercase tracking-wider text-sm">Vídeos disponíveis</h2>
+                <button onclick="carregarVideos()" class="text-xs bg-gray-800 hover:bg-gray-700 active:scale-95 text-gray-300 px-3 py-1.5 rounded-lg transition-transform font-bold">🔄 Recarregar</button>
+            </div>
+
+            <div id="lista-videos" class="flex-1 overflow-y-auto p-3 space-y-2">
+                <p class="text-gray-500 text-sm text-center mt-8">Carregando...</p>
             </div>
         </div>
 
-        <div class="flex gap-6 justify-center">
-            <button onclick="tocarVideo()" class="bg-purple-600 text-white px-12 py-5 rounded-xl font-black text-2xl shadow-lg hover:bg-purple-700 transition transform hover:scale-105">
-                ▶ DISPARAR VÍDEO
-            </button>
-            <button onclick="pararVideo()" class="bg-red-600 text-white px-12 py-5 rounded-xl font-black text-2xl shadow-lg hover:bg-red-700 transition">
-                ⏹ CORTAR IMAGEM
-            </button>
+        <!-- Coluna direita: fila de reprodução -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <div class="flex items-center justify-between px-4 py-3 border-b border-gray-800 shrink-0">
+                <h2 class="font-black text-gray-300 uppercase tracking-wider text-sm">Fila de reprodução</h2>
+                <button onclick="limparFila()" class="text-xs bg-gray-800 hover:bg-gray-700 active:scale-95 text-gray-400 px-3 py-1.5 rounded-lg transition-transform font-bold">🗑 Limpar</button>
+            </div>
+
+            <div id="fila-reprodução" class="flex-1 overflow-y-auto p-3 space-y-2">
+                <p id="fila-vazia" class="text-gray-600 text-sm text-center mt-8">Nenhum vídeo na fila.<br>Adicione vídeos da lista ao lado.</p>
+            </div>
         </div>
+    </div>
+
+    <!-- Rodapé: ações -->
+    <div class="shrink-0 bg-gray-900 border-t border-gray-700 p-4 flex gap-3">
+        <button onclick="reproduzirFila()" class="flex-1 bg-purple-700 hover:bg-purple-600 active:scale-95 text-white font-black py-4 rounded-xl text-lg shadow-lg transition-transform">▶ REPRODUZIR FILA</button>
+        <button onclick="pararVideo()" class="bg-red-800 hover:bg-red-700 active:scale-95 text-white font-black py-4 px-6 rounded-xl text-lg shadow-lg transition-transform">⏹ PARAR</button>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
-        function carregarListaVideos() { socket.emit('solicitar_videos'); }
-        socket.on('lista_videos', (videos) => {
-            const s = document.getElementById('select_video');
-            s.innerHTML = videos.length === 0 ? '<option value="">Nenhuma mídia encontrada na pasta public/videos</option>' : '';
-            videos.forEach(v => s.innerHTML += `<option value="${v}">${v}</option>`);
+        let fila = [];
+
+        const mapaControle = { futsal: 'controle_futsal.html', basquete: 'controle_basquete.html', volei: 'controle_volei.html' };
+        socket.on('atualizar_tela', (dados) => {
+            const link = document.getElementById('link-jogo');
+            if (link && mapaControle[dados.esporte]) link.href = mapaControle[dados.esporte];
         });
-        carregarListaVideos();
-        function tocarVideo() { const v = document.getElementById('select_video').value; if(v) socket.emit('comando_video', { acao: 'play', arquivo: v }); }
-        function pararVideo() { socket.emit('comando_video', { acao: 'stop' }); }
+
+        function carregarVideos() {
+            document.getElementById('lista-videos').innerHTML = '<p class="text-gray-500 text-sm text-center mt-8">Carregando...</p>';
+            socket.emit('solicitar_videos');
+        }
+
+        socket.on('lista_videos', (videos) => {
+            const lista = document.getElementById('lista-videos');
+            if (videos.length === 0) {
+                lista.innerHTML = '<p class="text-gray-500 text-sm text-center mt-8">Nenhum vídeo encontrado em <code class="text-gray-400">public/videos/</code></p>';
+                return;
+            }
+            lista.innerHTML = '';
+            videos.forEach(nome => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center justify-between bg-gray-800 hover:bg-gray-750 rounded-xl px-4 py-3 gap-3 border border-gray-700';
+                div.innerHTML = `
+                    <span class="text-sm text-gray-200 truncate flex-1">📹 ${nome}</span>
+                    <button onclick="adicionarNaFila('${nome.replace(/'/g, "\\'")}')"
+                        class="shrink-0 bg-purple-700 hover:bg-purple-600 active:scale-95 text-white font-bold px-3 py-1.5 rounded-lg text-sm transition-transform">
+                        + Adicionar
+                    </button>`;
+                lista.appendChild(div);
+            });
+        });
+
+        function adicionarNaFila(nome) {
+            fila.push(nome);
+            renderizarFila();
+        }
+
+        function removerDaFila(index) {
+            fila.splice(index, 1);
+            renderizarFila();
+        }
+
+        function limparFila() {
+            fila = [];
+            renderizarFila();
+        }
+
+        function renderizarFila() {
+            const container = document.getElementById('fila-reprodução');
+            const placeholder = document.getElementById('fila-vazia');
+
+            if (fila.length === 0) {
+                container.innerHTML = '<p id="fila-vazia" class="text-gray-600 text-sm text-center mt-8">Nenhum vídeo na fila.<br>Adicione vídeos da lista ao lado.</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+            fila.forEach((nome, i) => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center gap-3 bg-gray-800 rounded-xl px-4 py-3 border border-gray-700';
+                div.innerHTML = `
+                    <span class="text-purple-400 font-black font-mono w-6 text-center shrink-0">${i + 1}</span>
+                    <span class="text-sm text-gray-200 truncate flex-1">📹 ${nome}</span>
+                    <button onclick="removerDaFila(${i})"
+                        class="shrink-0 text-gray-500 hover:text-red-400 active:scale-95 font-bold px-2 py-1 rounded-lg text-lg transition-transform leading-none">×</button>`;
+                container.appendChild(div);
+            });
+        }
+
+        function reproduzirFila() {
+            if (fila.length === 0) {
+                alert('A fila está vazia. Adicione vídeos antes de reproduzir.');
+                return;
+            }
+            socket.emit('comando_video', { acao: 'playlist', arquivos: [...fila] });
+        }
+
+        function pararVideo() {
+            socket.emit('comando_video', { acao: 'stop' });
+        }
+
+        carregarVideos();
     </script>
 </body>
 </html>

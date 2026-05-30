@@ -9,17 +9,18 @@
 </head>
 <body>
 
+    <!-- Player de vídeo para comerciais (sobrepõe tudo) -->
+    <video id="videoPlayer" class="hidden" style="position:fixed;inset:0;width:100%;height:100%;z-index:100;background:#000;object-fit:contain;" playsinline></video>
+
     <div class="placar-container">
 
         <div id="box" class="box"></div>
 
         <div id="element-1" class="element element-1"></div>
         <div id="element-2" class="element element-2"></div>
-        <!-- <div id="element-3" class="element element-3"></div>
-        <div id="element-4" class="element element-4"></div> -->
-        
+
         <div id="logos">
-            <div  class="logo logo-mandante flex items-center justify-center">
+            <div class="logo logo-mandante flex items-center justify-center">
                 <img id="logo-mandante" alt="Logo Mandante">
                 <div id="sigla-mandante" class="hidden text-white font-bold text-5xl text-center w-full h-full flex items-center justify-center"></div>
             </div>
@@ -59,42 +60,77 @@
         </div>
 
     </div>
-<script src="/socket.io/socket.io.js"></script>
-    <script>
 
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
         const socket = io();
         let estadoLocal = null;
-        let timeoutAnimacao;
 
-        // Lógica de Vídeo {
-        // const videoPlayer = document.getElementById('videoPlayer');
-        // socket.on('executar_video', (dados) => {
-        //     if (dados.acao === 'play') {
-        //         videoPlayer.src = `/videos/${dados.arquivo}`;
-                
-        //         // ADICIONE ESTA LINHA: Força o navegador a engolir o novo arquivo
-        //         videoPlayer.load(); 
-                
-        //         videoPlayer.classList.remove('hidden');
-                
-        //         // O resto continua igual
-        //         videoPlayer.play().catch((erro) => {
-        //             console.error("Erro ao reproduzir o vídeo:", erro);
-        //             videoPlayer.classList.add('hidden');
-        //         });
+        // Lógica de Vídeo com playlist sequencial
+        const videoPlayer = document.getElementById('videoPlayer');
+        let videoQueue = [];
 
-        //     } else if (dados.acao === 'stop') {
-        //         videoPlayer.pause();
-        //         videoPlayer.src = '';
-        //         videoPlayer.classList.add('hidden');
-        //     }
-        // });
-        // videoPlayer.addEventListener('ended', () => videoPlayer.classList.add('hidden'));
-        // }
-        // Lógica do Placar e Layout
-        
+        function playNext() {
+            if (videoQueue.length === 0) {
+                videoPlayer.src = '';
+                videoPlayer.classList.add('hidden');
+                return;
+            }
+            const arquivo = videoQueue.shift();
+            videoPlayer.src = `/videos/${arquivo}`;
+            videoPlayer.classList.remove('hidden');
+            videoPlayer.load();
+            videoPlayer.play().catch(() => playNext());
+        }
+
+        socket.on('executar_video', (dados) => {
+            if (dados.acao === 'playlist') {
+                videoQueue = [...(dados.arquivos || [])];
+                playNext();
+            } else if (dados.acao === 'play') {
+                videoQueue = [dados.arquivo];
+                playNext();
+            } else if (dados.acao === 'stop') {
+                videoQueue = [];
+                videoPlayer.pause();
+                videoPlayer.src = '';
+                videoPlayer.classList.add('hidden');
+            }
+        });
+
+        videoPlayer.addEventListener('ended', playNext);
+
+        // Cronômetro em tempo real (50ms para suavidade nos centissegundos do basquete)
+        setInterval(() => {
+            if (!estadoLocal || !estadoLocal.cronometro) return;
+            const crono = estadoLocal.cronometro;
+            const esporte = estadoLocal.esporte;
+            let elapsed = crono.tempoAcumulado;
+            if (crono.rodando) elapsed += (Date.now() - crono.inicioTimestamp);
+
+            let display = '';
+            if (esporte === 'futsal' || esporte === 'volei') {
+                // Conta para cima: MM:SS
+                const totalSeg = Math.floor(elapsed / 1000);
+                const min = Math.floor(totalSeg / 60);
+                const seg = totalSeg % 60;
+                display = `${String(min).padStart(2, '0')}:${String(seg).padStart(2, '0')}`;
+            } else if (esporte === 'basquete') {
+                // Conta para baixo com centissegundos: MM:SS.cc
+                const restante = Math.max(0, crono.duracaoConfigurada - elapsed);
+                const min = Math.floor(restante / 60000);
+                const seg = Math.floor((restante % 60000) / 1000);
+                const cs = Math.floor((restante % 1000) / 10);
+                display = `${String(min).padStart(2, '0')}:${String(seg).padStart(2, '0')}.${String(cs).padStart(2, '0')}`;
+            }
+
+            const tempoEl = document.getElementById('tempo');
+            if (tempoEl && display) tempoEl.innerText = display;
+        }, 50);
+
+        // Atualização principal da tela
         socket.on('atualizar_tela', (dados) => {
-            console.log("Atualizar tela")
+            // Sincroniza relógio do cliente com servidor
             if (dados.serverTime && dados.cronometro) {
                 const clockOffset = Date.now() - dados.serverTime;
                 dados.cronometro.inicioTimestamp += clockOffset;
@@ -102,28 +138,35 @@
 
             changeCssSport(dados.esporte);
             estadoLocal = dados;
-            console.log(dados);
+
+            // Nomes
             document.getElementById('nomeA').innerText = dados.timeA.nome;
             document.getElementById('nomeB').innerText = dados.timeB.nome;
-            // document.getElementById('placarA').innerText = dados.timeA.placar;
-            // document.getElementById('placarB').innerText = dados.timeB.placar;
-            // document.getElementById('setsA').innerText = dados.timeA.sets;
-            // document.getElementById('setsB').innerText = dados.timeB.sets;
-            
 
+            // Placar
+            document.getElementById('placarA').innerText = dados.timeA.placar;
+            document.getElementById('placarB').innerText = dados.timeB.placar;
+
+            // Sets (vôlei)
+            document.getElementById('setsA').innerText = dados.timeA.sets;
+            document.getElementById('setsB').innerText = dados.timeB.sets;
+
+            // Faltas e período (futsal / basquete)
+            document.querySelector('.faltas-mandante').innerText = dados.timeA.faltas ?? 0;
+            document.querySelector('.faltas-visitante').innerText = dados.timeB.faltas ?? 0;
+            document.querySelector('.periodo').innerText = dados.periodo ? `${dados.periodo}º` : '1º';
+
+            // Logos / Siglas
             function getSigla(nome) {
                 if (!nome) return "---";
                 const palavras = nome.trim().split(/\s+/);
-                if (palavras.length > 1) {
-                    return palavras.slice(0, 3).map(p => p[0]).join('').toUpperCase();
-                } else {
-                    return nome.substring(0, 3).toUpperCase();
-                }
+                if (palavras.length > 1) return palavras.slice(0, 3).map(p => p[0]).join('').toUpperCase();
+                return nome.substring(0, 3).toUpperCase();
             }
 
-            if(dados.timeA.logo) { 
-                document.getElementById('logo-mandante').src = dados.timeA.logo; 
-                document.getElementById('logo-mandante').classList.remove('hidden'); 
+            if (dados.timeA.logo) {
+                document.getElementById('logo-mandante').src = dados.timeA.logo;
+                document.getElementById('logo-mandante').classList.remove('hidden');
                 document.getElementById('sigla-mandante').classList.add('hidden');
             } else {
                 document.getElementById('logo-mandante').classList.add('hidden');
@@ -131,9 +174,9 @@
                 document.getElementById('sigla-mandante').classList.remove('hidden');
             }
 
-            if(dados.timeB.logo) { 
-                document.getElementById('logo-visitante').src = dados.timeB.logo; 
-                document.getElementById('logo-visitante').classList.remove('hidden'); 
+            if (dados.timeB.logo) {
+                document.getElementById('logo-visitante').src = dados.timeB.logo;
+                document.getElementById('logo-visitante').classList.remove('hidden');
                 document.getElementById('sigla-visitante').classList.add('hidden');
             } else {
                 document.getElementById('logo-visitante').classList.add('hidden');
@@ -141,19 +184,17 @@
                 document.getElementById('sigla-visitante').classList.remove('hidden');
             }
 
-            // document.getElementById('saqueA').classList.add('hidden'); document.getElementById('saqueB').classList.add('hidden');
-            // if(dados.esporte === 'volei') {
-            //     if (dados.sacando === 'timeA') document.getElementById('saqueA').classList.remove('hidden');
-            //     if (dados.sacando === 'timeB') document.getElementById('saqueB').classList.remove('hidden');
-            // }
+            // Indicador de saque (vôlei)
+            if (dados.esporte === 'volei') {
+                document.getElementById('setsT').innerText = dados.timeA.sets + dados.timeB.sets + 1; // Exibe o número do set atual (soma dos sets + 1)
+            } else {
+                document.getElementById('setsT').innerText = '';
+            }
 
             
         });
 
         function changeCssSport(sport) {
-            console.log("Definindo posições dos elementos via CSS");
-
-            // Elementos
             const bola = document.getElementById("element-1");
             const logo = document.getElementById("element-2");
             const box = document.getElementById("box");
@@ -164,119 +205,81 @@
             const nomeVisitante = document.querySelector(".nome-visitante");
             const logoMandante = document.querySelector(".logo-mandante");
             const logoVisitante = document.querySelector(".logo-visitante");
-
             const tempo = document.querySelector(".tempo");
-            const periodo = document.querySelector(".periodo");
 
             const areaSets = document.getElementById("area_sets");
             const areaQuarter = document.getElementById("area_quarter");
             const areaFault = document.getElementById("area_fault");
 
-            // Backgrounds
             logo.style.backgroundImage = `url('./base/${sport}/element-2.png')`;
             bola.style.backgroundImage = `url('./base/${sport}/element-1.png')`;
             box.style.backgroundImage = `url('./base/${sport}/box.png')`;
 
-            // Esconde tudo primeiro
             areaSets.hidden = true;
             areaQuarter.hidden = true;
             areaFault.hidden = true;
 
-            // Configurações por esporte
             const sportConfig = {
                 volei: {
                     pontos: {
                         mandante: { top: "45.5%", left: "40.5%" },
                         visitante: { top: "45.5%", left: "59.2%" }
                     },
-                    nomes: {
-                        top: "67%"
-                    },
-                    tempo: {
-                        top: "19%",
-                        left: "50%",
-                        text: "00:00"
-                    },
+                    nomes: { top: "67%" },
+                    tempo: { top: "19%", left: "50%" },
                     logo: {
                         mandante: { top: "45.5%", left: "18.4%" },
                         visitante: { top: "45.5%", left: "81.7%" }
                     },
-                    extraArea: areaSets,
-                    elements: [1,2,3,4]
+                    extraArea: areaSets
                 },
-
                 basquete: {
                     pontos: {
                         mandante: { top: "56.5%", left: "40.5%" },
                         visitante: { top: "56.5%", left: "59.2%" }
                     },
-                    nomes: {
-                        top: "80%"
-                    },
-                    tempo: {
-                        top: "30.3%",
-                        left: "37.3%",
-                        text: "00:00:00"
-                    },
+                    nomes: { top: "80%" },
+                    tempo: { top: "28%", left: "43%" },
                     logo: {
-                        mandante: { top: "56.5%", left: "18.4%" },
-                        visitante: { top: "56.5%", left: "81.7%" }
+                        mandante: { top: "58.8%", left: "18.4%" },
+                        visitante: { top: "58.8%", left: "81.7%" }
                     },
-                    extraArea: areaFault,
-                    elements: [1,2]
+                    extraArea: areaFault
                 },
-
                 futsal: {
                     pontos: {
                         mandante: { top: "56.5%", left: "40.5%" },
                         visitante: { top: "56.5%", left: "59.2%" }
                     },
-                    nomes: {
-                        top: "80.5%"
-                    },
-                    tempo: {
-                        top: "28%",
-                        left: "44%",
-                        text: "00:00"
-                    },
+                    nomes: { top: "80.5%" },
+                    tempo: { top: "28%", left: "43%" },
                     logo: {
-                        mandante: { top: "56.5%", left: "18.4%" },
-                        visitante: { top: "56.5%", left: "81.7%" }
+                        mandante: { top: "58.8%", left: "18.4%" },
+                        visitante: { top: "58.8%", left: "81.7%" }
                     },
-                    extraArea: areaFault,
-                    elements: [1,2]
+                    extraArea: areaFault
                 }
             };
 
             const config = sportConfig[sport];
+            if (!config) { console.warn(`Esporte "${sport}" não configurado.`); return; }
 
-            if (!config) {
-                console.warn(`Esporte "${sport}" não configurado.`);
-                return;
-            }
-
-
-
-            // Pontos
             pontoMandante.style.top = config.pontos.mandante.top;
             pontoMandante.style.left = config.pontos.mandante.left;
-            pontoMandante.innerHTML = "0"
-            
             pontoVisitante.style.top = config.pontos.visitante.top;
             pontoVisitante.style.left = config.pontos.visitante.left;
-            console.log("AAAA");
-            pontoVisitante.innerHTML = "0"
 
-            // Nomes
+            logoMandante.style.top = config.logo.mandante.top;
+            logoMandante.style.left = config.logo.mandante.left;
+            logoVisitante.style.top = config.logo.visitante.top;
+            logoVisitante.style.left = config.logo.visitante.left;
+
             nomeMandante.style.top = config.nomes.top;
             nomeVisitante.style.top = config.nomes.top;
 
-            // Tempo
             tempo.style.top = config.tempo.top;
             tempo.style.left = config.tempo.left;
-            tempo.innerText = config.tempo.text;
 
-            // Área extra
             config.extraArea.hidden = false;
         }
     </script>

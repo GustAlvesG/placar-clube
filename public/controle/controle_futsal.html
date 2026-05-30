@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Controle - Futsal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        .font-digital { font-family: 'Share Tech Mono', monospace; }
+        body { user-select: none; }
+    </style>
+</head>
+<body class="bg-gray-900 text-white h-screen w-full flex flex-col overflow-hidden">
+
+    <nav class="bg-gray-900 shrink-0 flex items-center gap-3 px-4 py-2 border-b border-gray-700 text-sm">
+        <a href="index.html" class="text-gray-400 hover:text-yellow-400 font-bold transition">⚙️ CONFIG</a>
+        <span class="text-green-400 font-black tracking-wider">⚽ FUTSAL</span>
+        <a href="controle_anuncios.html" class="ml-auto text-gray-400 hover:text-yellow-400 font-bold transition">📺 ANÚNCIOS</a>
+    </nav>
+
+    <div class="flex-1 flex flex-row p-4 md:p-6 gap-4 overflow-hidden">
+
+        <!-- TIME A (CASA) -->
+        <div class="flex-1 bg-gray-800 rounded-3xl p-5 flex flex-col items-center justify-between border-4 border-blue-900 shadow-2xl">
+            <h2 id="nome-a" class="text-2xl md:text-4xl font-bold text-blue-400 tracking-widest uppercase text-center">CASA</h2>
+
+            <div class="bg-black w-full rounded-2xl py-6 flex justify-center items-center shadow-inner my-3">
+                <span id="score-a" class="font-digital text-7xl md:text-[9rem] text-blue-500 leading-none">0</span>
+            </div>
+
+            <button data-lockable onclick="marcar('timeA')" class="w-full bg-blue-600 active:bg-blue-400 active:scale-95 text-white text-4xl font-black py-6 rounded-2xl shadow-lg transition-transform">+1 GOL</button>
+            <button onclick="cmdPlacar('timeA', 'sub_ponto', 1)" class="w-full mt-2 bg-blue-900 active:bg-blue-800 active:scale-95 text-blue-300 text-lg font-bold py-3 rounded-xl transition-transform">−1</button>
+
+            <!-- Faltas -->
+            <div class="w-full mt-1 space-y-1">
+                <div class="text-center text-blue-400 text-xs font-bold uppercase">Faltas: <span id="faltas-a" class="text-white font-digital text-sm">0</span></div>
+                <div class="flex gap-2">
+                    <button data-lockable onclick="cmdPlacar('timeA', 'add_falta', 1)" class="flex-1 bg-blue-700 active:bg-blue-600 active:scale-95 text-white font-bold py-2 rounded-xl transition-transform text-sm">+Falta</button>
+                    <button onclick="cmdPlacar('timeA', 'sub_falta', 1)" class="flex-1 bg-blue-900 active:bg-blue-800 active:scale-95 text-blue-300 font-bold py-2 rounded-xl transition-transform text-sm">−Falta</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CENTRO -->
+        <div class="flex-1 flex flex-col items-center justify-start p-3 gap-3">
+
+            <!-- Display MM:SS (crescente) -->
+            <div class="bg-black w-full px-4 py-5 rounded-3xl border-4 border-gray-700 shadow-2xl flex items-center justify-center">
+                <span id="timer-display" class="font-digital text-4xl md:text-6xl text-yellow-400 leading-none tracking-tight">00:00</span>
+            </div>
+
+            <div class="flex gap-3 w-full">
+                <button onclick="cmdCronometro('play')" class="flex-1 bg-green-700 active:bg-green-600 active:scale-95 text-white font-black text-lg py-4 rounded-xl shadow-lg transition-transform">▶ PLAY</button>
+                <button onclick="cmdCronometro('pause')" class="flex-1 bg-yellow-700 active:bg-yellow-600 active:scale-95 text-white font-black text-lg py-4 rounded-xl shadow-lg transition-transform">⏸ PAUSA</button>
+            </div>
+
+            <!-- Período -->
+            <div class="bg-gray-800 p-4 rounded-2xl w-full flex flex-col items-center shadow-lg border border-gray-700 gap-2">
+                <div class="text-xs text-gray-400 font-bold uppercase">Período: <span id="periodo-display" class="text-white font-digital text-sm">1</span></div>
+                <div class="flex gap-2 w-full">
+                    <button onclick="cmdPlacar('nenhum', 'add_periodo', 1)" class="flex-1 bg-gray-700 active:bg-gray-600 active:scale-95 text-white font-bold py-2 rounded-xl transition-transform text-sm">+Per.</button>
+                    <button onclick="cmdPlacar('nenhum', 'sub_periodo', 1)" class="flex-1 bg-gray-800 active:bg-gray-700 active:scale-95 text-gray-300 font-bold py-2 rounded-xl transition-transform text-sm border border-gray-600">−Per.</button>
+                </div>
+            </div>
+
+            <!-- Zerar cronômetro -->
+            <button onclick="zerarCronometro()" class="w-full bg-gray-800 active:bg-gray-700 active:scale-95 text-gray-300 font-bold py-3 rounded-xl text-sm border border-gray-600 transition-transform">↺ ZERAR CRONO</button>
+
+            <button onclick="zerarTudo()" class="w-full bg-red-950 active:bg-red-900 active:scale-95 text-red-400 font-bold py-3 rounded-xl text-sm border border-red-800 transition-transform">⚠ ZERAR TUDO</button>
+        </div>
+
+        <!-- TIME B (VISITANTE) -->
+        <div class="flex-1 bg-gray-800 rounded-3xl p-5 flex flex-col items-center justify-between border-4 border-red-900 shadow-2xl">
+            <h2 id="nome-b" class="text-2xl md:text-4xl font-bold text-red-400 tracking-widest uppercase text-center">VISITANTE</h2>
+
+            <div class="bg-black w-full rounded-2xl py-6 flex justify-center items-center shadow-inner my-3">
+                <span id="score-b" class="font-digital text-7xl md:text-[9rem] text-red-500 leading-none">0</span>
+            </div>
+
+            <button data-lockable onclick="marcar('timeB')" class="w-full bg-red-600 active:bg-red-400 active:scale-95 text-white text-4xl font-black py-6 rounded-2xl shadow-lg transition-transform">+1 GOL</button>
+            <button onclick="cmdPlacar('timeB', 'sub_ponto', 1)" class="w-full mt-2 bg-red-900 active:bg-red-800 active:scale-95 text-red-300 text-lg font-bold py-3 rounded-xl transition-transform">−1</button>
+
+            <!-- Faltas -->
+            <div class="w-full mt-1 space-y-1">
+                <div class="text-center text-red-400 text-xs font-bold uppercase">Faltas: <span id="faltas-b" class="text-white font-digital text-sm">0</span></div>
+                <div class="flex gap-2">
+                    <button data-lockable onclick="cmdPlacar('timeB', 'add_falta', 1)" class="flex-1 bg-red-700 active:bg-red-600 active:scale-95 text-white font-bold py-2 rounded-xl transition-transform text-sm">+Falta</button>
+                    <button onclick="cmdPlacar('timeB', 'sub_falta', 1)" class="flex-1 bg-red-900 active:bg-red-800 active:scale-95 text-red-300 font-bold py-2 rounded-xl transition-transform text-sm">−Falta</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        let estadoAtual = null;
+
+        function atualizarBloqueio(rodando) {
+            document.querySelectorAll('[data-lockable]').forEach(btn => {
+                btn.disabled = !rodando;
+                btn.classList.toggle('opacity-40', !rodando);
+                btn.classList.toggle('cursor-not-allowed', !rodando);
+            });
+        }
+
+        socket.on('atualizar_tela', (dados) => {
+            if (dados.serverTime && dados.cronometro) {
+                const clockOffset = Date.now() - dados.serverTime;
+                dados.cronometro.inicioTimestamp += clockOffset;
+            }
+            estadoAtual = dados;
+            document.getElementById('nome-a').innerText = dados.timeA.nome || 'CASA';
+            document.getElementById('nome-b').innerText = dados.timeB.nome || 'VISITANTE';
+            document.getElementById('score-a').innerText = dados.timeA.placar;
+            document.getElementById('score-b').innerText = dados.timeB.placar;
+            document.getElementById('faltas-a').innerText = dados.timeA.faltas ?? 0;
+            document.getElementById('faltas-b').innerText = dados.timeB.faltas ?? 0;
+            document.getElementById('periodo-display').innerText = dados.periodo || 1;
+            atualizarBloqueio(dados.cronometro.rodando);
+        });
+
+        // Cronômetro crescente (MM:SS, 500ms)
+        setInterval(() => {
+            if (!estadoAtual) return;
+            const crono = estadoAtual.cronometro;
+            let elapsed = crono.tempoAcumulado;
+            if (crono.rodando) elapsed += (Date.now() - crono.inicioTimestamp);
+            const totalSeg = Math.floor(elapsed / 1000);
+            const min = Math.floor(totalSeg / 60);
+            const seg = totalSeg % 60;
+            document.getElementById('timer-display').innerText =
+                `${String(min).padStart(2, '0')}:${String(seg).padStart(2, '0')}`;
+        }, 500);
+
+        function marcar(time) {
+            socket.emit('comando_placar', { time, acao: 'add_ponto', valor: 1 });
+        }
+
+        function cmdPlacar(time, acao, valor) {
+            socket.emit('comando_placar', { time, acao, valor });
+        }
+
+        function cmdCronometro(acao) {
+            socket.emit('comando_cronometro', { acao });
+        }
+
+        function zerarCronometro() {
+            socket.emit('comando_cronometro', { acao: 'set', valor: 0, segundos: 0 });
+        }
+
+        function zerarTudo() {
+            if (confirm('Zerar placar, faltas e cronômetro?')) {
+                socket.emit('comando_placar', { time: 'nenhum', acao: 'zerar_tudo', valor: 0 });
+            }
+        }
+    </script>
+</body>
+</html>
