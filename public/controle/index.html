@@ -68,8 +68,9 @@
                 <label class="block text-sm text-gray-600 mb-2 font-bold uppercase">Logo (Opcional):</label>
                 <input type="file" accept="image/*" class="w-full text-base mb-6 bg-white p-3 border-2 border-dashed border-blue-300 rounded-xl cursor-pointer" onchange="enviarLogo('timeA', this)">
                 
-                <label class="block text-sm text-gray-600 mb-2 font-bold uppercase">Elenco (um por linha):</label>
-                <textarea id="elenco_a" rows="5" class="w-full border border-blue-200 p-4 rounded-xl text-base text-gray-700 shadow-inner focus:border-blue-400 outline-none leading-relaxed" placeholder="João Silva&#10;Pedro Santos&#10;Carlos Oliveira"></textarea>
+                <label class="block text-sm text-gray-600 mb-2 font-bold uppercase">Elenco:</label>
+                <div id="elenco-timeA" class="space-y-2 mb-3"></div>
+                <button type="button" onclick="addJogador('timeA')" class="w-full bg-blue-200 hover:bg-blue-300 active:scale-95 text-blue-900 font-bold py-3 rounded-xl transition-transform text-sm">+ Adicionar Jogador</button>
             </div>
             
             <!-- TIME B -->
@@ -81,8 +82,9 @@
                 <label class="block text-sm text-gray-600 mb-2 font-bold uppercase">Logo (Opcional):</label>
                 <input type="file" accept="image/*" class="w-full text-base mb-6 bg-white p-3 border-2 border-dashed border-red-300 rounded-xl cursor-pointer" onchange="enviarLogo('timeB', this)">
                 
-                <label class="block text-sm text-gray-600 mb-2 font-bold uppercase">Elenco (um por linha):</label>
-                <textarea id="elenco_b" rows="5" class="w-full border border-red-200 p-4 rounded-xl text-base text-gray-700 shadow-inner focus:border-red-400 outline-none leading-relaxed" placeholder="João Silva&#10;Pedro Santos&#10;Carlos Oliveira"></textarea>
+                <label class="block text-sm text-gray-600 mb-2 font-bold uppercase">Elenco:</label>
+                <div id="elenco-timeB" class="space-y-2 mb-3"></div>
+                <button type="button" onclick="addJogador('timeB')" class="w-full bg-red-200 hover:bg-red-300 active:scale-95 text-red-900 font-bold py-3 rounded-xl transition-transform text-sm">+ Adicionar Jogador</button>
             </div>
 
         </div>
@@ -116,6 +118,8 @@
         const socket = io();
         const mapaControle = { futsal: 'controle_futsal.html', basquete: 'controle_basquete.html', volei: 'controle_volei.html' };
         let transmissaoAtiva = false;
+        let elenco = { timeA: [], timeB: [] };
+        let elencoCarregado = false;
 
         socket.on('atualizar_tela', (dados) => {
             const link = document.getElementById('link-jogo');
@@ -123,15 +127,20 @@
             const radio = document.querySelector(`input[name="esporte"][value="${dados.esporte}"]`);
             if (radio) radio.checked = true;
 
-            // Preencher nomes e elencos do estado atual
+            // Preencher nomes do estado atual
             const nomeA = document.getElementById('nome_a');
             const nomeB = document.getElementById('nome_b');
-            const elencoA = document.getElementById('elenco_a');
-            const elencoB = document.getElementById('elenco_b');
             if (nomeA && !nomeA.value) nomeA.value = dados.timeA.nome !== 'Time Local' ? dados.timeA.nome : '';
             if (nomeB && !nomeB.value) nomeB.value = dados.timeB.nome !== 'Visitante' ? dados.timeB.nome : '';
-            if (elencoA && !elencoA.value && dados.timeA.elenco?.length) elencoA.value = dados.timeA.elenco.join('\n');
-            if (elencoB && !elencoB.value && dados.timeB.elenco?.length) elencoB.value = dados.timeB.elenco.join('\n');
+
+            // Carregar elenco do servidor uma única vez (objetos {numero, nome, foto})
+            if (!elencoCarregado) {
+                elenco.timeA = (dados.timeA.elenco || []).map(normalizarJogador);
+                elenco.timeB = (dados.timeB.elenco || []).map(normalizarJogador);
+                renderElenco('timeA');
+                renderElenco('timeB');
+                elencoCarregado = true;
+            }
 
             transmissaoAtiva = !!dados.transmissaoAtiva;
             const btn = document.getElementById('btn-transmissao');
@@ -181,21 +190,78 @@
                 el.disabled = true;
             });
 
-            const elencoA = document.getElementById('elenco_a').value.split('\n').map(n => n.trim()).filter(n => n);
-            const elencoB = document.getElementById('elenco_b').value.split('\n').map(n => n.trim()).filter(n => n);
+            const limparElenco = (arr) => arr
+                .map(j => ({ numero: String(j.numero || '').trim(), nome: (j.nome || '').trim(), foto: j.foto || '' }))
+                .filter(j => j.nome || j.numero);
 
             socket.emit('configurar_jogo', {
                 esporte: esporteSelecionado.value,
                 timeA_nome: document.getElementById('nome_a').value,
                 timeB_nome: document.getElementById('nome_b').value,
-                timeA_elenco: elencoA,
-                timeB_elenco: elencoB
+                timeA_elenco: limparElenco(elenco.timeA),
+                timeB_elenco: limparElenco(elenco.timeB)
             });
 
             document.getElementById('zerar').disabled = false;
             document.getElementById('btn-transmissao').disabled = false;
         }
         
+        // ---- Gestão de elenco (numero, nome, foto) ----
+        function normalizarJogador(j) {
+            if (typeof j === 'string') return { numero: '', nome: j, foto: '' };
+            return { numero: j.numero || '', nome: j.nome || '', foto: j.foto || '' };
+        }
+
+        function escAttr(s) { return String(s).replace(/"/g, '&quot;'); }
+
+        function addJogador(time) {
+            elenco[time].push({ numero: '', nome: '', foto: '' });
+            renderElenco(time);
+        }
+
+        function removeJogador(time, i) {
+            elenco[time].splice(i, 1);
+            renderElenco(time);
+        }
+
+        function updateJogador(time, i, campo, valor) {
+            if (elenco[time][i]) elenco[time][i][campo] = valor;
+        }
+
+        function fotoJogador(time, i, input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onloadend = () => { elenco[time][i].foto = reader.result; renderElenco(time); };
+            reader.readAsDataURL(file);
+        }
+
+        function renderElenco(time) {
+            const container = document.getElementById('elenco-' + time);
+            if (!container) return;
+            container.innerHTML = '';
+            elenco[time].forEach((j, i) => {
+                const row = document.createElement('div');
+                row.className = 'flex items-center gap-2 bg-white p-2 rounded-xl border border-gray-200';
+                const thumb = j.foto
+                    ? `<img src="${j.foto}" class="w-11 h-11 rounded-full object-cover">`
+                    : `<span class="text-xl">📷</span>`;
+                row.innerHTML = `
+                    <input type="number" value="${escAttr(j.numero)}" oninput="updateJogador('${time}', ${i}, 'numero', this.value)"
+                        placeholder="#" class="w-14 border border-gray-300 p-2 rounded-lg text-center font-black text-gray-800 outline-none focus:border-gray-500">
+                    <input type="text" value="${escAttr(j.nome)}" oninput="updateJogador('${time}', ${i}, 'nome', this.value)"
+                        placeholder="Nome do jogador" class="flex-1 min-w-0 border border-gray-300 p-2 rounded-lg text-gray-800 outline-none focus:border-gray-500">
+                    <label class="shrink-0 w-11 h-11 flex items-center justify-center bg-gray-100 rounded-lg cursor-pointer overflow-hidden border border-gray-300">
+                        ${thumb}
+                        <input type="file" accept="image/*" class="hidden" onchange="fotoJogador('${time}', ${i}, this)">
+                    </label>
+                    <button type="button" onclick="removeJogador('${time}', ${i})"
+                        class="shrink-0 w-9 h-9 flex items-center justify-center text-gray-400 hover:text-red-500 text-2xl leading-none">×</button>
+                `;
+                container.appendChild(row);
+            });
+        }
+
         function enviarLogo(time, input) {
             const file = input.files[0];
             if (!file) return;
