@@ -51,6 +51,16 @@
         <div id="element-1" class="element element-1"></div>
         <div id="element-2" class="element element-2"></div>
 
+        <!-- Indicador de saque (vôlei): fundo + bola piscando ao lado do time sacando -->
+        <div id="saque-A" class="saque-indicador">
+            <div class="saque-fundo"></div>
+            <div class="saque-bola"></div>
+        </div>
+        <div id="saque-B" class="saque-indicador">
+            <div class="saque-fundo"></div>
+            <div class="saque-bola"></div>
+        </div>
+
         <div id="logos">
             <div class="logo logo-mandante flex items-center justify-center">
                 <img id="logo-mandante" alt="Logo Mandante">
@@ -260,6 +270,11 @@
             } else {
                 document.getElementById('setsT').innerText = '';
             }
+
+            // Bola de saque piscando ao lado do time que está sacando (somente vôlei)
+            const ehVolei = dados.esporte === 'volei';
+            document.getElementById('saque-A').classList.toggle('ativo', ehVolei && dados.sacando === 'timeA');
+            document.getElementById('saque-B').classList.toggle('ativo', ehVolei && dados.sacando === 'timeB');
 
             
         });
