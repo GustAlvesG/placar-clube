@@ -127,12 +127,12 @@ body {
 /* Bola menor, centralizada sobre o fundo, piscando via brilho/opacidade */
 .saque-bola {
     top: 23%;
-    left: 22%;
+    left: 21.5%;
     width: 55%;
     aspect-ratio: 1 / 1;
     transform: translate(-50%, -50%);
     background-image: url('./base/volei/element-4-on.png');
-    animation: piscar-saque 1s ease-in-out, spin 90s linear infinite;
+    animation: piscar-saque 1s ease-in-out, spin 30s linear infinite;
 }
 
 @keyframes piscar-saque {
