@@ -70,8 +70,8 @@ io.on('connection', (socket) => {
 });
 
 if (require.main === module) {
-    server.listen(3000, '0.0.0.0', () => {
-        console.log('Servidor rodando! Acesse via IP na rede (ex: http://192.168.x.x:3000)');
+    server.listen(4000, '0.0.0.0', () => {
+        console.log('Servidor rodando! Acesse via IP na rede (ex: http://192.168.x.x:4000)');
     });
 }
 
