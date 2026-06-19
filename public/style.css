@@ -132,7 +132,7 @@ body {
     aspect-ratio: 1 / 1;
     transform: translate(-50%, -50%);
     background-image: url('./base/volei/element-4-on.png');
-    animation: piscar-saque 1s ease-in-out, spin 30s linear infinite;
+    animation: piscar-saque 1s ease-in-out infinite, spin 30s linear infinite;
 }
 
 @keyframes piscar-saque {

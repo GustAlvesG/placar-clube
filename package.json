@@ -18,6 +18,8 @@
     "socket.io": "^4.8.3"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "nodemon": "^3.1.14",
+    "playwright": "^1.61.0",
+    "socket.io-client": "^4.8.3"
   }
 }
